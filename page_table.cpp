@@ -40,7 +40,7 @@ PageTable::PageTable(int levelCount, vector<int> levelAry){
        rootNodeptr = new Level(0, new map[entrycount[0]]());
       // totalMemory += sizeof(map) * entrycount[0];
     } else {
-        rootNodeptr = new Level(0, new Level *[entrycount[0]]());
+        rootNodeptr = new Level(0, false, this);
         //totalMemory +=
     }
 }
