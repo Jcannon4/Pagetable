@@ -5,6 +5,7 @@
 #include <inttypes.h>
 #include <unistd.h>
 #include <vector>
+#include "math.h"
 
 #include "page_table.h"
 #include "output_mode_helpers.h"
@@ -121,6 +122,7 @@ int main(int argc, char **argv) {
     }}
   
   int difference = argc - optind;
+  //level count
  
 
   printf("DIFFERENCE :%i\n", difference);
@@ -163,6 +165,7 @@ int main(int argc, char **argv) {
   printf("OFFSET: %i\n", 32 - pageBitTotal);
   uint32_t frame = 0;
   int run = 0;
+
   while (!feof(fp)){
     if(NextAddress(fp, &trace)) {
       uint32_t logicalAddr = trace.addr;
@@ -171,6 +174,7 @@ int main(int argc, char **argv) {
         
         uint32_t off = logicalAddr<<pageBitTotal;
         report_logical2offset(logicalAddr, off>>pageBitTotal);
+
       }
       //printf("address: %x\n", logicalAddr);
     }
@@ -178,9 +182,14 @@ int main(int argc, char **argv) {
     if(*n_value == run){break;}
     
   }
+  report_summary(pow(2, 32 -pageBitTotal), pagetable.hits, 
+		    *n_value, pagetable.misses,pagetable.totalMemory);
+        
 printf("FINAL COUNT: %i\t%i\t%i\n", pagetable.misses, pagetable.hits, pagetable.totalMemory);
+printf("PAGE VALS: %x\t%i\t%i\n", pagetable.bitmaskAry[0], pagetable.shiftAry[0], pagetable.entrycount[0]);
 fclose(fp);
   cout << "end of Program" << "\n";
+
   
 return 0;
 }

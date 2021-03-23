@@ -38,9 +38,17 @@ PageTable::PageTable(int levelCount, vector<int> levelAry){
     if (levelCount == 1){
         printf("ONLY ONE LEVEL TODO MAP\n");
        rootNodeptr = new Level(0, new map[entrycount[0]]());
+       //totalMemory += sizeof(map); //* entrycount[0];
+       printf("entrrrrrrrrrrry%i\n",entrycount[0]);
+
+       totalMemory += (sizeof(map) * entrycount[0]);
+
     } else {
         rootNodeptr = new Level(0, false, this);
+       totalMemory += (pow(2,entrycount[0]) * 8);//entrycount[0];
     }
+    totalMemory += sizeof(Level);
+    totalMemory += sizeof(PageTable);
 }
 
 void PageTable::pageInsert(uint32_t logicalAddress) {
@@ -71,13 +79,13 @@ void PageTable::pageInsert(Level *levelPtr, uint32_t logicalAddress) {
          if (depth == levelCountTable - 2) {
             levelPtr->NextLevelPtr[page] = new Level(depth + 1,
                                                       new map[nextEntries]());
-           totalMemory += sizeof(map) * nextEntries;
+          // totalMemory += sizeof(map) * nextEntries;
         } else {
              levelPtr->NextLevelPtr[page] = new Level(depth + 1,
                                                       new Level *[nextEntries]());
-            totalMemory += sizeof(Level) * nextEntries;
+           // totalMemory += sizeof(Level) * nextEntries;
         }
-         totalMemory += sizeof(Level);
+         //totalMemory += sizeof(Level);
     }
      pageInsert(levelPtr->NextLevelPtr[page], logicalAddress);
 }
