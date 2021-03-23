@@ -4,7 +4,9 @@
 #include <cstdint>
 
 struct map {
-    uint32_t frame = 0;
+    int size ;
+
+    uint32_t frame =0;
     bool isValid = false;
 
     ~map() = default;

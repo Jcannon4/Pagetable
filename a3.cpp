@@ -156,28 +156,29 @@ int main(int argc, char **argv) {
     return EXIT_FAILURE;
   }
   PageTable pagetable(difference, levels);
-  // uint32_t test[3];
-  // for (int i = 0; i < 3; i++){
-  //   uint32_t tmp = 0xF00;
-  //   test[i] = tmp;
-  // }
-  // report_bitmasks(difference, test);
-
-  printf("LEVEL COUNT: %i\n", difference);
+  printf("DRIVER PAGETABLE: %x\nLEVEL COUNT: %i\n", pagetable.bitmaskAry[1], pagetable.levelCountTable);
+  printf("ENTRY COUNT: %i\n", pagetable.entrycount[1]);
+  printf("SHIFT COUNT: %i\n", pagetable.shiftAry[1]);
   printf("TOTAL BIT NUM : %i\n", pageBitTotal);
   printf("OFFSET: %i\n", 32 - pageBitTotal);
-  
-  uint32_t hex = 0xF;
-  printf("HEX: %x\n", hex);
-  printf("TRY: %x\n", hex<<24);
-
-  while (true){
+  uint32_t frame = 0;
+  int run = 0;
+  while (!feof(fp)){
     if(NextAddress(fp, &trace)) {
-      uint32_t logcialAddr = trace.addr;
-      //printf("address: %i\n", logcialAddr);
+      uint32_t logicalAddr = trace.addr;
+      pagetable.pageInsert(logicalAddr);
+      if(OFFSET_FLAG){
+        
+        uint32_t off = logicalAddr<<pageBitTotal;
+        report_logical2offset(logicalAddr, off>>pageBitTotal);
+      }
+      //printf("address: %x\n", logicalAddr);
     }
+    run++;
+    if(*n_value == run){break;}
+    
   }
-
+printf("FINAL COUNT: %i\t%i\t%i\n", pagetable.misses, pagetable.hits, pagetable.totalMemory);
 fclose(fp);
   cout << "end of Program" << "\n";
   
