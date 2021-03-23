@@ -46,7 +46,7 @@ int NextAddress(FILE *trace_file, p2AddrTr *addr_ptr) {
 
   int readN;	/* number of records stored */ 
   static ENDIAN byte_order = UNKNOWN;	/* don't know machine format */
-
+  
   if (byte_order == UNKNOWN) {
     /* First invocation.  Determine if this is a litte- or
      * big- endian machine so that we can convert bit patterns
@@ -54,7 +54,6 @@ int NextAddress(FILE *trace_file, p2AddrTr *addr_ptr) {
      */
     byte_order = endian();
   }
-
   /* Read the next address record. */
   readN = fread(addr_ptr, sizeof(p2AddrTr), 1, trace_file);
 
@@ -65,6 +64,7 @@ int NextAddress(FILE *trace_file, p2AddrTr *addr_ptr) {
       addr_ptr->addr = swap_endian(addr_ptr->addr);
       addr_ptr->time = swap_endian(addr_ptr->time);
     }
+
   }
 
   return readN;    
