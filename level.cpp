@@ -19,10 +19,10 @@ Level::Level(int depth, bool isLeaf, PageTable *pagetablepointer){
         }
     }
 }
-Level::Level(int depth, Level **nextLevelPtr) {
-    this->depth = depth;
-    this->NextLevelPtr = nextLevelPtr;
-}
+// Level::Level(int depth, Level **nextLevelPtr) {
+//     this->depth = depth;
+//     this->NextLevelPtr = nextLevelPtr;
+// }
 Level::Level(int depth, map *mapPtr) {
     this->depth = depth;
     this->mapPtr = mapPtr;
