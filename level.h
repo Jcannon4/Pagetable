@@ -7,7 +7,7 @@ class PageTable;
 class Level {
     public: 
     int depth;
-    bool leaf;
+    //bool leaf;
     PageTable *PageTablePtr;
     Level **NextLevelPtr = nullptr;
     map *mapPtr = nullptr;

@@ -38,8 +38,10 @@ PageTable::PageTable(int levelCount, vector<int> levelAry){
     if (levelCount == 1){
         printf("ONLY ONE LEVEL TODO MAP\n");
        rootNodeptr = new Level(0, new map[entrycount[0]]());
+      // totalMemory += sizeof(map) * entrycount[0];
     } else {
-        rootNodeptr = new Level(0, false, this);
+        rootNodeptr = new Level(0, new Level *[entrycount[0]]());
+        //totalMemory +=
     }
 }
 

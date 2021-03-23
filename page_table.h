@@ -19,7 +19,7 @@ class PageTable {
     int misses = 0;
     int totalMemory = 0;
     uint32_t currentFrame = 0;
-
+    int totalADDRS = 0;
     void pageInsert(uint32_t logicalAddress);
     void pageInsert(Level *levelPtr, uint32_t logicalAddress);
     static uint32_t logicalToPage(uint32_t logical_address, uint32_t mask, uint32_t shift);
