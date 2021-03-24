@@ -1,23 +1,22 @@
-#ifndef LEVEL_H
-#define LEVEL_H
+#ifndef TABLE_LEVEL_H
+#define TABLE_LEVEL_H
 
 #include "page_table.h"
 #include "map.h"
 class PageTable;
 class Level {
-    public: 
-    int depth;
-    bool leaf;
+    public:
+
     PageTable *PageTablePtr;
     Level **NextLevelPtr = nullptr;
-    map *mapPtr = nullptr;
-   
+    map *mapPointer = nullptr;
+    int depth;
+    bool leaf;
     Level(int depth, bool leaf, PageTable *);
 
-    explicit Level(int depth, map *mapPtr);
+    Level(int depth, map *mapPointer);
 
-    
-    explicit Level(int depth, Level **nextLevelPtr);
+    Level(int depth, Level **nextLevelPtr);
     ~Level();
     
 };

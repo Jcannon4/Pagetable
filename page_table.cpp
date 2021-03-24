@@ -57,10 +57,10 @@ void PageTable::pageInsert(Level *currentPointer, uint32_t logicalAddress) {
     PageTable::shiftAry[depth]);
 
     if(depth == levelCountTable-1){
-        if(currentPointer->mapPtr[page].isValid){hits++; totalADDRS++;}
+        if(currentPointer->mapPointer[page].isLeaf){hits++; totalADDRS++;}
         else {
-            currentPointer->mapPtr[page].frame = currentFrame++;
-            currentPointer->mapPtr[page].isValid = true;
+            currentPointer->mapPointer[page].frame = currentFrame++;
+            currentPointer->mapPointer[page].isLeaf = true;
             totalADDRS++;}
         return;
     }
@@ -82,8 +82,8 @@ bool PageTable::pageLookup(uint32_t logical, uint32_t &frame) {
    for(int i =0; i < levelCountTable; i++){
        if(currentPointer == nullptr){return false;}
        uint32_t currentPG = logicalToPage(logical, bitmaskAry[i], shiftAry[i]);
-    if(currentPointer->mapPtr){
-        frame = currentPointer->mapPtr[currentPG].frame;
+    if(currentPointer->mapPointer){
+        frame = currentPointer->mapPointer[currentPG].frame;
         return true;
     }
    } return false;

@@ -2,8 +2,8 @@ CC = g++ -std=c++11
 DATA_STRUCTURES = page_table.o level.o map.o output_mode_helpers.o
 BYU = byu.o
 
-a3: a3.cpp ${DATA_STRUCTURES} ${BYU}
-	${CC} -g -o a3 a3.cpp page_table.o level.o map.o byu.o output_mode_helpers.o
+pagetable: a3.cpp ${DATA_STRUCTURES} ${BYU}
+	${CC} -g -o pagetable a3.cpp page_table.o level.o map.o byu.o output_mode_helpers.o
 byu.o: byu_tracereader.c byutr.h
 	${CC} -w -o byu.o -c byu_tracereader.c
 page_table.o: page_table.cpp page_table.h

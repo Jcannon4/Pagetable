@@ -8,7 +8,7 @@ Level::Level(int depth, bool isLeaf, PageTable *pagetablepointer){
     Level::depth = depth;
     Level::leaf = isLeaf;
     Level::PageTablePtr = pagetablepointer;
-    Level::mapPtr = nullptr;
+    Level::mapPointer = nullptr;
     if (leaf){
         Level::NextLevelPtr = nullptr;
     } else {
@@ -23,9 +23,9 @@ Level::Level(int depth, Level **nextLevelPtr) {
     this->depth = depth;
     this->NextLevelPtr = nextLevelPtr;
 }
-Level::Level(int depth, map *mapPtr) {
+Level::Level(int depth, map *mapPointer) {
     this->depth = depth;
-    this->mapPtr = mapPtr;
+    this->mapPointer = mapPointer;
 }
 
 Level::~Level() = default;

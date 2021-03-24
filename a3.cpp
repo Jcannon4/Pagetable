@@ -1,10 +1,12 @@
 #include <stdio.h> 
 #include <stdlib.h> 
+#include <string.h>
 #include "byutr.h"
 #include <iostream>
 #include <inttypes.h>
 #include <unistd.h>
 #include <vector>
+#include <math.h>       
 
 #include "page_table.h"
 #include "output_mode_helpers.h"
