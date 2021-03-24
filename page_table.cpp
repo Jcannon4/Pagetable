@@ -5,6 +5,7 @@
 #include "output_mode_helpers.h"
 #include <vector>
 #include "level.h"
+#include "map.h"
 
 using namespace std;
 
@@ -32,67 +33,78 @@ PageTable::PageTable(int levelCount, vector<int> levelAry){
         bitmasks[i] = tmp;
         bitmaskAry[i] = tmp;
     }
-    //bitmaskAry = bitmasks;
     
-    report_bitmasks(levelCount, bitmasks);
-    if (levelCount == 1){
-        printf("ONLY ONE LEVEL TODO MAP\n");
-       rootNodeptr = new Level(0, new map[entrycount[0]]());
-      // totalMemory += sizeof(map) * entrycount[0];
+   report_bitmasks(levelCount, bitmasks);
+    if (levelCount == 1){ 
+        rootNodeptr = new Level(0, new map[entrycount[0]]());
+        totalMemory += sizeof(map) * entrycount[0];
     } else {
         rootNodeptr = new Level(0, false, this);
-        //totalMemory +=
+        totalMemory += sizeof(Level) * entrycount[0];
     }
+    totalMemory += sizeof(Level);
+    totalMemory += sizeof(PageTable);
 }
-
 void PageTable::pageInsert(uint32_t logicalAddress) {
-    // if(rootNodeptr == nullptr)
-    // {
-    //     rootNodeptr = new Level(0, 1 == levelCountTable, this);
-    // }
-    pageInsert(rootNodeptr, logicalAddress);
-}
-void PageTable::pageInsert(Level *levelPtr, uint32_t logicalAddress) {
-    int depth = levelPtr->depth;
-    uint32_t page = logicalToPage(logicalAddress, PageTable::bitmaskAry[depth],
-                                  PageTable::shiftAry[depth]);
-
-    // // Leaf node
-    if (depth == levelCountTable - 1) {
-       if (levelPtr->mapPtr[page].isValid)
-         hits++;
-        else {
-            levelPtr->mapPtr[page].frame = currentFrame++;
-            levelPtr->mapPtr[page].isValid = true;
-            misses++;
-        }
-        return;
-     } // Inner node
-    else if (levelPtr->NextLevelPtr[page] == nullptr) {
-        int nextEntries = PageTable::entrycount[depth + 1];
-         if (depth == levelCountTable - 2) {
-            levelPtr->NextLevelPtr[page] = new Level(depth + 1,
-                                                      new map[nextEntries]());
-           totalMemory += sizeof(map) * nextEntries;
-        } else {
-             levelPtr->NextLevelPtr[page] = new Level(depth + 1,
-                                                      new Level *[nextEntries]());
-            totalMemory += sizeof(Level) * nextEntries;
-        }
-         totalMemory += sizeof(Level);
-    }
-     pageInsert(levelPtr->NextLevelPtr[page], logicalAddress);
-}
-
-bool PageTable::pageLookup(uint32_t logicalAddress, uint32_t &frame) {
     
-    for (int i = 0; i < levelCountTable; i++) {
-       uint32_t page = logicalToPage(logicalAddress, bitmaskAry[i], shiftAry[i]);
+    pageInsert(rootNodeptr, logicalAddress);
+}  
+void PageTable::pageInsert(Level *currentPointer, uint32_t logicalAddress) {
+    
+    int depth = currentPointer->depth;
+    uint32_t page = logicalToPage(logicalAddress,
+    PageTable::bitmaskAry[depth],
+    PageTable::shiftAry[depth]);
+
+    if(depth == levelCountTable-1){
+        if(currentPointer->mapPtr[page].isValid){hits++; totalADDRS++;}
+        else {
+            currentPointer->mapPtr[page].frame = currentFrame++;
+            currentPointer->mapPtr[page].isValid = true;
+            totalADDRS++;}
+        return;
     }
-    return false;
+    else if(currentPointer->NextLevelPtr[page] == nullptr){
+        int minusCount = levelCountTable - 2;
+        int size = PageTable::entrycount[depth + 1];
+        if(depth == minusCount){
+            currentPointer->NextLevelPtr[page] = new Level(depth+1, new map[size]());
+        } else{
+            currentPointer->NextLevelPtr[page] = new Level(depth+1, new Level *[size]());
+        }
+    }
+    pageInsert(currentPointer->NextLevelPtr[page], logicalAddress);
 }
 
-uint32_t PageTable::logicalToPage(uint32_t logicalAddress, uint32_t mask,
-                                  uint32_t shift) {
+
+bool PageTable::pageLookup(uint32_t logical, uint32_t &frame) {
+    Level *currentPointer = rootNodeptr;
+   for(int i =0; i < levelCountTable; i++){
+       if(currentPointer == nullptr){return false;}
+       uint32_t currentPG = logicalToPage(logical, bitmaskAry[i], shiftAry[i]);
+    if(currentPointer->mapPtr){
+        frame = currentPointer->mapPtr[currentPG].frame;
+        return true;
+    }
+   } return false;
+}
+
+uint32_t PageTable::logicalToPage(uint32_t logicalAddress, uint32_t mask, uint32_t shift) {
     return (logicalAddress & mask) >> shift;
+}
+void PageTable::logicalToPhysical(uint32_t logical, uint32_t &physical, int offset){
+
+    uint32_t pageFrame;
+    if(pageLookup(logical, pageFrame)){
+        unsigned int tmp = pow(2, offset) - 1;
+        physical = (logical & tmp) + (pageFrame << offset);
+        report_logical2physical(logical, physical);
+    }
+
+    //pageLookup(PageTable table, )
+    
+}
+
+void PageTable::pageToFrame(){
+
 }

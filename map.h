@@ -9,6 +9,7 @@ struct map {
     uint32_t frame=0;
     bool isValid = false;
     ~map() = default;
+    map *pageLookup(PageTable *ptable, unsigned int logical);
 };
 
 #endif //MAP_H

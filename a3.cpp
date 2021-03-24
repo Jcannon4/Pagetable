@@ -14,6 +14,7 @@ using namespace std;
 
 int N_FLAG = 0;
 int O_FLAG = 0;
+OutputOptionsType argumentations;
 
 int BIT_FLAG = 0;
 int SUMMARY_FLAG = 0;
@@ -72,6 +73,7 @@ int main(int argc, char **argv) {
               printf("O COUNT : %d\n", O_FLAG);
               o_value = optarg;
               if(strcmp(o_value, "bitmasks") == 0){
+                argumentations.bitmasks = true;
                 BIT_FLAG++;
               }
               if(strcmp(o_value, "summary") == 0) {
@@ -167,10 +169,19 @@ int main(int argc, char **argv) {
     if(NextAddress(fp, &trace)) {
       uint32_t logicalAddr = trace.addr;
       pagetable.pageInsert(logicalAddr);
-      if(OFFSET_FLAG){
+      
+      if(OFFSET_FLAG > 0){
         
         uint32_t off = logicalAddr<<pageBitTotal;
         report_logical2offset(logicalAddr, off>>pageBitTotal);
+      } else if (P2F_FLAG > 0) {
+        pagetable.pageToFrame();
+          
+      }
+      else if(L2P_FLAG > 0 ) {
+         
+          uint32_t physical;
+          pagetable.logicalToPhysical(logicalAddr, physical, (32-pageBitTotal));
       }
       //printf("address: %x\n", logicalAddr);
     }
@@ -178,7 +189,11 @@ int main(int argc, char **argv) {
     if(*n_value == run){break;}
     
   }
-printf("FINAL COUNT: %i\t%i\t%i\n", pagetable.misses, pagetable.hits, pagetable.totalMemory);
+  if (SUMMARY_FLAG){
+    report_summary(pow(2, 32 - pageBitTotal), pagetable.hits, 
+		    pagetable.totalADDRS, (pagetable.totalADDRS-pagetable.hits), pagetable.totalMemory);
+  }
+//printf("FINAL COUNT: %i\t%i\t%i\n", pagetable.misses, pagetable.hits, pagetable.totalMemory);
 fclose(fp);
   cout << "end of Program" << "\n";
   
