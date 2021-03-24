@@ -16,7 +16,6 @@ class PageTable {
     uint32_t *entrycount;
 
     int hits = 0;
-    //int misses = 0;
     int totalMemory = 0;
     uint32_t currentFrame = 0;
     int totalADDRS = 0;
@@ -28,7 +27,7 @@ class PageTable {
 
     static uint32_t logicalToPage(uint32_t logical_address, uint32_t mask, uint32_t shift);
     
-   bool pageLookup(uint32_t logical, uint32_t &frame);
+    bool pageLookup(uint32_t logical, uint32_t &frame);
 
     void logicalToPhysical(uint32_t logicalAddress, uint32_t &physical, int offset);
 

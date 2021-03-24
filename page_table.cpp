@@ -11,14 +11,14 @@ using namespace std;
 
 PageTable::PageTable(int levelCount, vector<int> levelAry){
     PageTable::levelCountTable = levelCount;
-    printf("PAGTEABLE LEVEL COUNT: %i\n", levelCount);
+    // printf("PAGTEABLE LEVEL COUNT: %i\n", levelCount);
     bitmaskAry = new uint32_t [levelCount];
     entrycount = new uint32_t [levelCount];
     shiftAry = new uint32_t [levelCount];
 
     int ADDRS = 31;
     int shift = 0;
-    uint32_t bitmasks[levelCount];
+    //uint32_t bitmasks[levelCount];
     
     for (int i = 0; i < levelCount ; i++){
         entrycount[i] = pow(2, levelAry[i]);
@@ -30,11 +30,11 @@ PageTable::PageTable(int levelCount, vector<int> levelAry){
             
             ADDRS--;
         }
-        bitmasks[i] = tmp;
+        //bitmasks[i] = tmp;
         bitmaskAry[i] = tmp;
     }
     
-   report_bitmasks(levelCount, bitmasks);
+   //report_bitmasks(levelCount, bitmasks);
     if (levelCount == 1){ 
         rootNodeptr = new Level(0, new map[entrycount[0]]());
         totalMemory += sizeof(map) * entrycount[0];

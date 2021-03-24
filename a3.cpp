@@ -12,6 +12,7 @@
 using namespace std;
 #define OOPS 5
 
+int NO_FLAG = 0;
 int N_FLAG = 0;
 int O_FLAG = 0;
 OutputOptionsType argumentations;
@@ -38,7 +39,7 @@ int main(int argc, char **argv) {
   char *o_value;
   int *n_value;
  
-  cout << argc << "\n";
+  // cout << argc << "\n";
   int i = 0;
   // for(int i ; i<argc; i++){
   //   printf("%s\n", argv[i]);
@@ -63,42 +64,54 @@ int main(int argc, char **argv) {
               n_value = &samples; // All checks for n value passed
               N_FLAG++;
               n_value = &samples;
-              printf("N COUNT : %d\n", N_FLAG);
-              printf("FLAG NUMBER: %i\n", *n_value);
+              // printf("N COUNT : %d\n", N_FLAG);
+              // printf("FLAG NUMBER: %i\n", *n_value);
               break;
         case 'o':
             //TODO CHECKS FOR THE FOLLOWING 
             //bitmasks, logical2physical, page2frame, offset, summary
               O_FLAG++;
-              printf("O COUNT : %d\n", O_FLAG);
+              // printf("O COUNT : %d\n", O_FLAG);
               o_value = optarg;
               if(strcmp(o_value, "bitmasks") == 0){
                 argumentations.bitmasks = true;
                 BIT_FLAG++;
               }
               if(strcmp(o_value, "summary") == 0) {
+                argumentations.summary = true;
                 SUMMARY_FLAG++;
               }
                if(strcmp(o_value, "offset") == 0){
+                 argumentations.offset = true;
                  OFFSET_FLAG++;
                }
                if(strcmp(o_value, "page2frame") == 0){
+                 argumentations.page2frame = true;
                  P2F_FLAG++;
                }
                if(strcmp(o_value, "logical2physical") == 0){
+                 argumentations.logical2physical = true;
                 L2P_FLAG++;
               }
-              printf("argument : %s\n", o_value);
+              // printf("argument : %s\n", o_value);
               break;
         default : 
           break;
                 
      }
     }
-    if(L2P_FLAG ==0 && P2F_FLAG == 0 && OFFSET_FLAG == 0 && SUMMARY_FLAG == 0 && BIT_FLAG ==0 && O_FLAG > 0){
-      printf("%s is not a valid argument after -o", o_value); 
-      return EXIT_FAILURE;
+    if(!argumentations.bitmasks 
+    && !argumentations.logical2physical 
+    && !argumentations.offset 
+    && !argumentations.page2frame
+    && !argumentations.summary){
+      if(O_FLAG > 0){
+      printf("The Argument: \'%s\' is not a valid argument after -o\n", o_value); 
+      return EXIT_FAILURE;}
+      else{
+        NO_FLAG++;
       }
+    }
 
     char *fileindex = argv[optind];
     optind++; 
@@ -107,8 +120,8 @@ int main(int argc, char **argv) {
       printf("cannot open %s, double check the file path given", fileindex);
       return EXIT_FAILURE;
       }
-    printf("FILE PATH :%s\n", fileindex);
-    printf("OPTION INDEX : %i\nARGUMENT COUNT: %i\n", optind, argc);
+    // printf("FILE PATH :%s\n", fileindex);
+    // printf("OPTION INDEX : %i\nARGUMENT COUNT: %i\n", optind, argc);
     
     if(optind == 1 )
     {
@@ -125,7 +138,7 @@ int main(int argc, char **argv) {
   int difference = argc - optind;
  
 
-  printf("DIFFERENCE :%i\n", difference);
+  // printf("DIFFERENCE :%i\n", difference);
   int pageBitTotal = 0;
   //vector<int> levels;
   vector<int> levels;
@@ -158,28 +171,23 @@ int main(int argc, char **argv) {
     return EXIT_FAILURE;
   }
   PageTable pagetable(difference, levels);
-  printf("DRIVER PAGETABLE: %x\nLEVEL COUNT: %i\n", pagetable.bitmaskAry[1], pagetable.levelCountTable);
-  printf("ENTRY COUNT: %i\n", pagetable.entrycount[1]);
-  printf("SHIFT COUNT: %i\n", pagetable.shiftAry[1]);
-  printf("TOTAL BIT NUM : %i\n", pageBitTotal);
-  printf("OFFSET: %i\n", 32 - pageBitTotal);
+  // printf("DRIVER PAGETABLE: %x\nLEVEL COUNT: %i\n", pagetable.bitmaskAry[1], pagetable.levelCountTable);
+  // printf("ENTRY COUNT: %i\n", pagetable.entrycount[1]);
+  // printf("SHIFT COUNT: %i\n", pagetable.shiftAry[1]);
+  // printf("TOTAL BIT NUM : %i\n", pageBitTotal);
+  // printf("OFFSET: %i\n", 32 - pageBitTotal);
   uint32_t frame = 0;
   int run = 0;
   while (!feof(fp)){
     if(NextAddress(fp, &trace)) {
       uint32_t logicalAddr = trace.addr;
       pagetable.pageInsert(logicalAddr);
-      
-      if(OFFSET_FLAG > 0){
-        
+      if(argumentations.offset){
         uint32_t off = logicalAddr<<pageBitTotal;
         report_logical2offset(logicalAddr, off>>pageBitTotal);
-      } else if (P2F_FLAG > 0) {
+      } else if (argumentations.page2frame) {
         pagetable.pageToFrame();
-          
-      }
-      else if(L2P_FLAG > 0 ) {
-         
+      }else if(argumentations.logical2physical) {
           uint32_t physical;
           pagetable.logicalToPhysical(logicalAddr, physical, (32-pageBitTotal));
       }
@@ -189,13 +197,15 @@ int main(int argc, char **argv) {
     if(*n_value == run){break;}
     
   }
-  if (SUMMARY_FLAG){
+  if(argumentations.bitmasks){
+    report_bitmasks(difference, pagetable.bitmaskAry);
+  } else if (argumentations.summary || NO_FLAG > 0){
     report_summary(pow(2, 32 - pageBitTotal), pagetable.hits, 
 		    pagetable.totalADDRS, (pagetable.totalADDRS-pagetable.hits), pagetable.totalMemory);
   }
 //printf("FINAL COUNT: %i\t%i\t%i\n", pagetable.misses, pagetable.hits, pagetable.totalMemory);
 fclose(fp);
-  cout << "end of Program" << "\n";
-  
+  // cout << "end of Program" << "\n";
+EXIT_SUCCESS;
 return 0;
 }
