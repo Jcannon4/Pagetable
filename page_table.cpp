@@ -55,11 +55,11 @@ void PageTable::pageInsert(Level *currentPointer, uint32_t logicalAddress) {
     uint32_t page = logicalToPage(logicalAddress,
     PageTable::bitmaskAry[depth],
     PageTable::shiftAry[depth]);
-
+    
     if(depth == levelCountTable-1){
         if(currentPointer->mapPointer[page].isLeaf){hits++; totalADDRS++;}
         else {
-            currentPointer->mapPointer[page].frame = currentFrame++;
+            currentPointer->mapPointer[page].frame = currentFrame++;   
             currentPointer->mapPointer[page].isLeaf = true;
             totalADDRS++;}
         return;
@@ -73,38 +73,53 @@ void PageTable::pageInsert(Level *currentPointer, uint32_t logicalAddress) {
             currentPointer->NextLevelPtr[page] = new Level(depth+1, new Level *[size]());
         }
     }
+    //printf("Calling FRAME: %i\n", currentPointer->mapPointer[page].frame);
     pageInsert(currentPointer->NextLevelPtr[page], logicalAddress);
 }
 
 
 bool PageTable::pageLookup(uint32_t logical, uint32_t &frame) {
     Level *currentPointer = rootNodeptr;
+    //printf("BEFORE COUNT: %i\n", levelCountTable);
    for(int i =0; i < levelCountTable; i++){
+       //printf("COUNT: %i\n", levelCountTable);
        if(currentPointer == nullptr){return false;}
        uint32_t currentPG = logicalToPage(logical, bitmaskAry[i], shiftAry[i]);
     if(currentPointer->mapPointer){
         frame = currentPointer->mapPointer[currentPG].frame;
+        
         return true;
     }
+    currentPointer = currentPointer->NextLevelPtr[currentPG];
    } return false;
 }
 
 uint32_t PageTable::logicalToPage(uint32_t logicalAddress, uint32_t mask, uint32_t shift) {
     return (logicalAddress & mask) >> shift;
 }
-void PageTable::logicalToPhysical(uint32_t logical, uint32_t &physical, int offset){
+// uint32_t PageTable::logicalToPhysical(uint32_t logical, uint32_t &physical, int offset){
 
-    uint32_t pageFrame;
-    if(pageLookup(logical, pageFrame)){
-        unsigned int tmp = pow(2, offset) - 1;
-        physical = (logical & tmp) + (pageFrame << offset);
-        report_logical2physical(logical, physical);
-    }
-
-    //pageLookup(PageTable table, )
+//     uint32_t pageFrame;
     
-}
+//     if(pageLookup(logical, pageFrame)){
+//         uint32_t tmp = pow(2, offset) - 1;
+//         physical = (logical & tmp) + (pageFrame << offset);
+//        // printf("logical : %x\nphysical: %x\n", logical, physical);
+//         return physical;
+//     }
+//     return physical;
+//     //pageLookup(PageTable table, )
+    
+// }
 
-void PageTable::pageToFrame(){
-
+void PageTable::pageToFrame(uint32_t logical)
+{
+    uint32_t tmpFrame;
+    uint32_t pageArray[levelCountTable];
+    if(pageLookup(logical, tmpFrame)){
+        for(int i =0; i < levelCountTable ; i++){
+            pageArray[i] = logicalToPage(logical, bitmaskAry[i], shiftAry[i]);
+        }
+        report_pagemap(logical, levelCountTable, pageArray, tmpFrame);
+    }
 }

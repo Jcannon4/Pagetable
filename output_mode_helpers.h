@@ -82,6 +82,7 @@ void report_bitmasks(int levels, uint32_t *masks);
  *
  * logical_addr - logical address, displayed first (primarily to help
  *                with debugging)
+ * 
  * levels - specified number of levels in page table
  * pages - pages[idx] is the page number associated with level idx
  *         (0 < idx < levels)

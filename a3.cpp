@@ -188,16 +188,22 @@ int main(int argc, char **argv) {
         uint32_t off = logicalAddr<<pageBitTotal;
         report_logical2offset(logicalAddr, off>>pageBitTotal);
       } else if (argumentations.page2frame) {
-        pagetable.pageToFrame();
+        pagetable.pageToFrame(logicalAddr);
+
       }else if(argumentations.logical2physical) {
-          uint32_t physical;
-          pagetable.logicalToPhysical(logicalAddr, physical, (32-pageBitTotal));
-      }
-      //printf("address: %x\n", logicalAddr);
+         uint32_t pageFrame;
+          //  if(pagetable.pageLookup(logicalAddr, pageFrame)){
+          //     uint32_t tmp = pow(2, (32-pageBitTotal)) - 1;
+          //     uint32_t offset = 32 - pageBitTotal;
+          //     pageFrame = (logicalAddr & tmp) + (pageFrame << offset);
+          //     report_logical2physical(logicalAddr, pageFrame);
+          //   }
+          pagetable.logicalToPhysical(logicalAddr, pageFrame, (32-pageBitTotal));
+        }
+      
     }
     run++;
     if(*n_value == run){break;}
-    
   }
   if(argumentations.bitmasks){
     report_bitmasks(difference, pagetable.bitmaskAry);
@@ -205,9 +211,7 @@ int main(int argc, char **argv) {
     report_summary(pow(2, 32 - pageBitTotal), pagetable.hits, 
 		    pagetable.totalADDRS, (pagetable.totalADDRS-pagetable.hits), pagetable.totalMemory);
   }
-//printf("FINAL COUNT: %i\t%i\t%i\n", pagetable.misses, pagetable.hits, pagetable.totalMemory);
 fclose(fp);
-  // cout << "end of Program" << "\n";
 EXIT_SUCCESS;
 return 0;
 }

@@ -29,11 +29,10 @@ class PageTable {
     
     bool pageLookup(uint32_t logical, uint32_t &frame);
 
-    void logicalToPhysical(uint32_t logicalAddress, uint32_t &physical, int offset);
+    uint32_t logicalToPhysical(uint32_t logicalAddress, uint32_t &physical, int offset);
 
-    void pageToFrame();
-    void pageToFrame(FILE *dumpFile, uint32_t page);
-    void pageToFrame(FILE *dumpFile, Level *levelPtr, uint32_t page);
+    void pageToFrame(uint32_t logical);
+    
 
    
 };
