@@ -173,11 +173,7 @@ int main(int argc, char **argv) {
     return EXIT_FAILURE;
   }
   PageTable pagetable(difference, levels);
-  // printf("DRIVER PAGETABLE: %x\nLEVEL COUNT: %i\n", pagetable.bitmaskAry[1], pagetable.levelCountTable);
-  // printf("ENTRY COUNT: %i\n", pagetable.entrycount[1]);
-  // printf("SHIFT COUNT: %i\n", pagetable.shiftAry[1]);
-  // printf("TOTAL BIT NUM : %i\n", pageBitTotal);
-  // printf("OFFSET: %i\n", 32 - pageBitTotal);
+  
   uint32_t frame = 0;
   int run = 0;
   while (!feof(fp)){
@@ -191,14 +187,9 @@ int main(int argc, char **argv) {
         pagetable.pageToFrame(logicalAddr);
 
       }else if(argumentations.logical2physical) {
-         uint32_t pageFrame;
-          //  if(pagetable.pageLookup(logicalAddr, pageFrame)){
-          //     uint32_t tmp = pow(2, (32-pageBitTotal)) - 1;
-          //     uint32_t offset = 32 - pageBitTotal;
-          //     pageFrame = (logicalAddr & tmp) + (pageFrame << offset);
-          //     report_logical2physical(logicalAddr, pageFrame);
-          //   }
-          pagetable.logicalToPhysical(logicalAddr, pageFrame, (32-pageBitTotal));
+         
+          
+          pagetable.logicalToPhysical(logicalAddr, (32-pageBitTotal));
         }
       
     }

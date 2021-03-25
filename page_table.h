@@ -29,7 +29,7 @@ class PageTable {
     
     bool pageLookup(uint32_t logical, uint32_t &frame);
 
-    uint32_t logicalToPhysical(uint32_t logicalAddress, uint32_t &physical, int offset);
+    void logicalToPhysical(uint32_t logicalAddress, int offset);
 
     void pageToFrame(uint32_t logical);
     

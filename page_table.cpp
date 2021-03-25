@@ -7,6 +7,7 @@
 #include "level.h"
 #include "map.h"
 
+
 using namespace std;
 
 PageTable::PageTable(int levelCount, vector<int> levelAry){
@@ -87,7 +88,6 @@ bool PageTable::pageLookup(uint32_t logical, uint32_t &frame) {
        uint32_t currentPG = logicalToPage(logical, bitmaskAry[i], shiftAry[i]);
     if(currentPointer->mapPointer){
         frame = currentPointer->mapPointer[currentPG].frame;
-        
         return true;
     }
     currentPointer = currentPointer->NextLevelPtr[currentPG];
@@ -97,20 +97,23 @@ bool PageTable::pageLookup(uint32_t logical, uint32_t &frame) {
 uint32_t PageTable::logicalToPage(uint32_t logicalAddress, uint32_t mask, uint32_t shift) {
     return (logicalAddress & mask) >> shift;
 }
-// uint32_t PageTable::logicalToPhysical(uint32_t logical, uint32_t &physical, int offset){
-
-//     uint32_t pageFrame;
+void PageTable::logicalToPhysical(uint32_t logical, int offset){
+    uint32_t frame;
+    uint32_t offAddr = logical;
+    uint32_t mask =  pow(2,32) - 1;
+    int pageSize = pow(2, offset);
+    if(pageLookup(logical, frame)){
+        
+        for(int i = 0; i < levelCountTable; i++){
+            mask -= bitmaskAry[i];
+        }
+        offAddr = offAddr & mask;
+        unsigned int physicalADDRESS = (frame * pageSize) + offAddr;
+        report_logical2physical(logical, physicalADDRESS);
+    }
+    return;
     
-//     if(pageLookup(logical, pageFrame)){
-//         uint32_t tmp = pow(2, offset) - 1;
-//         physical = (logical & tmp) + (pageFrame << offset);
-//        // printf("logical : %x\nphysical: %x\n", logical, physical);
-//         return physical;
-//     }
-//     return physical;
-//     //pageLookup(PageTable table, )
-    
-// }
+}
 
 void PageTable::pageToFrame(uint32_t logical)
 {
