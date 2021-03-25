@@ -12,6 +12,8 @@ class Level {
     map *mapPointer = nullptr;
     int depth;
     bool leaf;
+
+    //FUNCTIONS TO CREATE OUR LEVEL CLASS
     Level(int depth, bool leaf, PageTable *);
 
     Level(int depth, map *mapPointer);

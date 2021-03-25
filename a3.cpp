@@ -19,20 +19,14 @@ int N_FLAG = 0;
 int O_FLAG = 0;
 OutputOptionsType argumentations;
 
+//THIS ACCOMPLISHES THE SAME THING AS
+//THE OUTPUT OPTIONS TYPE
 int BIT_FLAG = 0;
 int SUMMARY_FLAG = 0;
 int L2P_FLAG = 0;
 int OFFSET_FLAG = 0;
 int P2F_FLAG = 0;
-/*
- * Example of a program that uses the Brigham Young University
- * trace reader.  You do not need this program, but you will
- * need to do what's in it to make your program work.
 
- * DO NOT INCLUDE THIS IN YOUR PROGRAM
- * USE IT FOR AN EXAMPLE OF HOW TO READ THE TRACE FILE
- * gcc -std=c11 -o sample_read sample_read.c byu_tracereader.c
- */
 
 int main(int argc, char **argv) {
   int option;
@@ -40,40 +34,37 @@ int main(int argc, char **argv) {
   char argument[256];
   char *o_value;
   int *n_value;
- 
-  // cout << argc << "\n";
-  int i = 0;
-  // for(int i ; i<argc; i++){
-  //   printf("%s\n", argv[i]);
-  // }
 
+  int i = 0;
   
   while ((option = getopt(argc, argv, "o:n:")) != -1) {
       switch (option) {
         case 'n':
-              try {
-                    if ((samples = stoi(optarg, nullptr, 10)) <= 0) {
-                        fprintf(stderr,
-                                "Option -%c argument must be a number > 0: %s\n",
+              //ENSURE WE HAVE A NUMBER FOLLOWING OUR N FLAG
+                if(isdigit(optarg[0]))
+                {
+                  //MAKE SURE STRING IS A POSITIVE INTEGER ABOVE 0
+                    if ((samples = stoi(optarg, nullptr, 10)) <= 0)
+                    {
+                      fprintf(stderr, "Option -%c argument must be a number > 0: %s\n",
                                 optopt, optarg);
                         return EXIT_FAILURE;
                     }
                 }
-              catch (const invalid_argument &ia) {
-                    cerr << "Option -n argument must be a number." << endl;
-                    return EXIT_FAILURE;
+                else 
+                {
+                  //NON DIGIT DETECTED, EXIT PROGRAM
+                  printf("Argument \'%s\' entered is not a number\n", optarg); 
+                  exit(0);
                 }
-              n_value = &samples; // All checks for n value passed
+                //STORE N VALUE, SIGNAL THAT N FLAG WAS FOUND
+              n_value = &samples; 
               N_FLAG++;
               n_value = &samples;
-              // printf("N COUNT : %d\n", N_FLAG);
-              // printf("FLAG NUMBER: %i\n", *n_value);
+            
               break;
         case 'o':
-            //TODO CHECKS FOR THE FOLLOWING 
-            //bitmasks, logical2physical, page2frame, offset, summary
               O_FLAG++;
-              // printf("O COUNT : %d\n", O_FLAG);
               o_value = optarg;
               if(strcmp(o_value, "bitmasks") == 0){
                 argumentations.bitmasks = true;
@@ -95,7 +86,6 @@ int main(int argc, char **argv) {
                  argumentations.logical2physical = true;
                 L2P_FLAG++;
               }
-              // printf("argument : %s\n", o_value);
               break;
         default : 
           break;
@@ -107,71 +97,59 @@ int main(int argc, char **argv) {
     && !argumentations.offset 
     && !argumentations.page2frame
     && !argumentations.summary){
+      //CHECKS THAT A ARGUMENT WAS SUPPLIED AFTER -O FLAG
       if(O_FLAG > 0){
       printf("The Argument: \'%s\' is not a valid argument after -o\n", o_value); 
       return EXIT_FAILURE;}
       else{
+        //NO -O FLAG FOUND SO BY DEFAULT WE WILL RUN SUMMARY
         NO_FLAG++;
       }
     }
-
+    //FILE SHOULD BE SUPPLIED AFTER OPTARG
     char *fileindex = argv[optind];
-    optind++; 
+    optind++; //MOVE OPTIND TO GRAB FILE
     FILE *fp;
     if((fp = fopen(fileindex, "r")) == nullptr) {
       printf("cannot open %s, double check the file path given", fileindex);
       return EXIT_FAILURE;
       }
-    // printf("FILE PATH :%s\n", fileindex);
-    // printf("OPTION INDEX : %i\nARGUMENT COUNT: %i\n", optind, argc);
     
     if(optind == 1 )
     {
 
     }else{
     if (optind >= argc) {
-        cerr << "Expected argument after options" << endl;
+        cerr << "No argument given after options" << endl;
         return EXIT_FAILURE;
     } else if (argc - optind < 1) {
-        cerr << "Expected at least one page level" << endl;
+        cerr << "There needs to be at least one page level" << endl;
         return EXIT_FAILURE;
     }}
-  
+  //LEVEL CALCULATIONS
   int difference = argc - optind;
- 
-
-  // printf("DIFFERENCE :%i\n", difference);
   int pageBitTotal = 0;
-  //vector<int> levels;
   vector<int> levels;
   p2AddrTr trace; 
   for (int i = 0; i < difference; i++) {
         int levelBits;
-        try {
             if ((levelBits = stoi(argv[optind], nullptr, 10)) <= 0 ) {
-                fprintf(stderr, "level bit must be a number > 0: %s\n",
-                        argv[optind]);
+                fprintf(stderr, "Level bit must be nonzero positive integer: %s\n", argv[optind]);
                 return EXIT_FAILURE;
             }
-            // printf("optind check : %i\n", optind);
-        }
-        catch (const invalid_argument &ia) {
             if (difference == 0) {
-                fprintf(stderr, "level bit must be a number: %s\n",
-                argv[optind]);
+                fprintf(stderr, "level bit should be a number: %s\n", argv[optind]);
                 return EXIT_FAILURE;
             }
-            break;
-        }
         levels.push_back(levelBits);
         pageBitTotal += levelBits;
-        //levelCount++;
         optind++;
     }
   if(pageBitTotal >31){
     printf("TOTAL BIT COUNT EXCEEDS 31\n");
     return EXIT_FAILURE;
   }
+  //CREATE OUR PAGETABLE WITH LEVEL FUNCTIONS
   PageTable pagetable(difference, levels);
   
   uint32_t frame = 0;
@@ -188,7 +166,6 @@ int main(int argc, char **argv) {
 
       }else if(argumentations.logical2physical) {
          
-          
           pagetable.logicalToPhysical(logicalAddr, (32-pageBitTotal));
         }
       
